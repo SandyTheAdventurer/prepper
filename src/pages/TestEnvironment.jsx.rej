@@ -1,0 +1,11 @@
+--- frontend/src/pages/TestEnvironment.jsx
++++ frontend/src/pages/TestEnvironment.jsx
+@@ -19,6 +19,8 @@
+   const answersRef = useRef(answers);
+   const submittingRef = useRef(submitting);
++  const currentSectionRef = useRef(currentSection);
+ 
+   useEffect(() => { answersRef.current = answers; }, [answers]);
+   useEffect(() => { submittingRef.current = submitting; }, [submitting]);
++  useEffect(() => { currentSectionRef.current = currentSection; }, [currentSection]);
+ 
