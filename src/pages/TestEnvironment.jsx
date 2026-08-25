@@ -47,10 +47,15 @@ export default function TestEnvironment() {
     try {
       await api.post('/tests/submit-section/', { test_id: testId });
       toast.success('Section completed! Moving to next section.');
+      // Re-fetch the test to get the next section instead of full page reload
+      const res = await api.post('/tests/start/', { test_id: testId });
+      setCurrentSection(res.data.current_section);
+      setQuestions(res.data.questions || []);
+      setTimeLeft((res.data.time_limit || 0) * 60);
+      setCurrentIdx(0);
+      setAnswers(res.data.previous_answers || {});
       setSubmitting(false);
       submittingRef.current = false;
-      // Re-fetch the test to get the next section
-      window.location.reload();
     } catch (err) {
       toast.error('Error submitting section');
       setSubmitting(false);
