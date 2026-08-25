@@ -320,7 +320,7 @@ export default function TestEnvironment() {
                 className="primary" 
                 onClick={handleSubmitTest}
               >
-                Finish Test
+                {currentSection === "APTITUDE" ? 'Next Section' : 'Finish Test'}
               </button>
             ) : (
               <button 
