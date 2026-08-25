@@ -102,7 +102,7 @@ export default function TestEnvironment() {
     }, 1000);
 
     return () => clearInterval(timer);
-  }, [loading, doSubmit]);
+  }, [loading, doSubmit, currentSection]);
 
   const handleSelectOption = async (qId, optionNum) => {
     setAnswers(prev => ({ ...prev, [qId]: optionNum }));

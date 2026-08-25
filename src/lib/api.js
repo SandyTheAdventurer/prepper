@@ -60,7 +60,8 @@ api.interceptors.response.use(
         try {
           const res = await axios.post(
             `${api.defaults.baseURL}/auth/refresh/`,
-            { refresh: refreshToken }
+            { refresh: refreshToken },
+            { headers: { 'ngrok-skip-browser-warning': 'true' } }
           );
           localStorage.setItem('access_token', res.data.access);
           if (res.data.refresh) {
