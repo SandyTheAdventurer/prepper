@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Plus, Users, BookOpen, Shield, Trash2, Copy, BarChart2, Edit2, Check, X, Search, KeyRound } from 'lucide-react';
+import { Plus, Users, BookOpen, Shield, Trash2, Copy, BarChart2, Edit2, Check, X, Search, KeyRound, Eye, EyeOff } from 'lucide-react';
 import { useToast } from '../components/Toast';
 import { useTests, useStudents, useCreateTest, useToggleTestActive, useTogglePlaced, useAdminStats, useCloneTest, useUpdateTest, useDeleteTest } from '../hooks/api';
 import api from '../lib/api';
@@ -22,6 +22,9 @@ export default function AdminPanel() {
   const [searchQuery, setSearchQuery] = useState('');
   const [showCreateUser, setShowCreateUser] = useState(false);
   const [userForm, setUserForm] = useState({ username: '', name: '', password: '' });
+  const [resetPasswordUser, setResetPasswordUser] = useState(null);
+  const [newPassword, setNewPassword] = useState('');
+  const [showNewPassword, setShowNewPassword] = useState(false);
 
   const { data: stats } = useAdminStats();
   const { data: students = [], refetch: refetchStudents } = useStudents();
@@ -44,12 +47,19 @@ export default function AdminPanel() {
     }
   };
 
-  const handleResetPassword = async (username) => {
-    const newPassword = window.prompt(`Enter new password for ${username}:`);
+  const handleResetPassword = (username) => {
+    setResetPasswordUser(username);
+    setNewPassword('');
+    setShowNewPassword(false);
+  };
+
+  const handleConfirmResetPassword = async () => {
     if (!newPassword) return;
     try {
-      await api.post(`/admin/student/${username}/reset-password/`, { password: newPassword });
+      await api.post(`/admin/student/${resetPasswordUser}/reset-password/`, { password: newPassword });
       toast.success('Password reset successfully!');
+      setResetPasswordUser(null);
+      setNewPassword('');
     } catch (err) {
       toast.error('Failed to reset password');
     }
@@ -255,7 +265,7 @@ export default function AdminPanel() {
                     </td>
                     <td>
                       <span 
-                        className={`badge ${test.active ? 'user' : ''}`}
+                        className={`badge ${test.active ? 'user' : 'inactive'}`}
                         onClick={() => toggleTestMutation.mutate(test.test_id)}
                         style={{ cursor: 'pointer' }}
                         title="Toggle active status"
@@ -377,6 +387,46 @@ export default function AdminPanel() {
                 )}
               </tbody>
             </table>
+          </div>
+        </div>
+      )}
+
+      {/* Password Reset Modal */}
+      {resetPasswordUser && (
+        <div style={{
+          position: 'fixed', inset: 0, zIndex: 10000,
+          background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(4px)',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+        }}>
+          <div className="glass-card" style={{ maxWidth: '420px', width: '90%' }}>
+            <h3 style={{ marginTop: 0 }}>Reset Password</h3>
+            <p style={{ color: 'var(--text-muted)', marginBottom: '16px' }}>Enter new password for <strong>{resetPasswordUser}</strong></p>
+            <div style={{ position: 'relative', marginBottom: '20px' }}>
+              <input
+                type={showNewPassword ? 'text' : 'password'}
+                value={newPassword}
+                onChange={e => setNewPassword(e.target.value)}
+                placeholder="New password"
+                autoFocus
+                onKeyDown={e => e.key === 'Enter' && handleConfirmResetPassword()}
+                style={{ paddingRight: '40px' }}
+              />
+              <button
+                type="button"
+                onClick={() => setShowNewPassword(!showNewPassword)}
+                style={{ position: 'absolute', right: '8px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', padding: '4px' }}
+              >
+                {showNewPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+              </button>
+            </div>
+            <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end' }}>
+              <button className="secondary" onClick={() => setResetPasswordUser(null)} style={{ padding: '10px 20px' }}>
+                Cancel
+              </button>
+              <button className="primary" onClick={handleConfirmResetPassword} disabled={!newPassword} style={{ padding: '10px 20px' }}>
+                Reset Password
+              </button>
+            </div>
           </div>
         </div>
       )}

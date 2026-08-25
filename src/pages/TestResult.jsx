@@ -2,6 +2,8 @@ import { useParams, Link } from 'react-router-dom';
 import { CheckCircle, XCircle, ChevronLeft } from 'lucide-react';
 import { useTestResult } from '../hooks/api';
 
+import DOMPurify from 'dompurify';
+
 export default function TestResult() {
   const { testId } = useParams();
   const { data: result, isLoading: loading, error } = useTestResult(testId);
@@ -27,6 +29,10 @@ export default function TestResult() {
   const overallPercentage = totalQuestions > 0 ? Math.round((totalCorrect / totalQuestions) * 100) : 0;
 
   const wrongAnswers = details.filter(d => !d.is_correct);
+  const percentileDisplay = result.percentile === 0 && totalQuestions > 0 ? '—' : `${result.percentile}%`;
+  const percentileBetterThan = result.percentile === 0 && totalQuestions > 0
+    ? 'N/A (only student so far)'
+    : `Better than ${result.percentile}% of students`;
 
   return (
     <div className="animate-fade-in delay-1" style={{ maxWidth: '900px', margin: '0 auto', paddingBottom: '60px' }}>
@@ -49,9 +55,9 @@ export default function TestResult() {
         <div className="glass-card" style={{ textAlign: 'center' }}>
           <h3 style={{ color: 'var(--text-muted)', marginBottom: '8px' }}>Percentile</h3>
           <div style={{ fontSize: '3rem', fontWeight: 800, color: '#f59e0b' }}>
-            {result.percentile}%
+            {percentileDisplay}
           </div>
-          <p style={{ margin: 0 }}>Better than {result.percentile}% of students</p>
+          <p style={{ margin: 0 }}>{percentileBetterThan}</p>
         </div>
 
         <div className="glass-card" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>

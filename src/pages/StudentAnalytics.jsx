@@ -25,7 +25,7 @@ export default function StudentAnalytics() {
   return (
     <div className="animate-fade-in">
       <div style={{ marginBottom: '24px', display: 'flex', alignItems: 'center', gap: '16px' }}>
-        <Link to="/admin" className="secondary button-link" style={{ padding: '8px' }}><ArrowLeft size={18} /></Link>
+        <Link to="/admin" className="secondary button-link" style={{ padding: '8px 12px', display: 'inline-flex', alignItems: 'center', gap: '6px' }}><ArrowLeft size={18} /> Back</Link>
         <div>
           <h1 style={{ margin: 0 }}>Analytics: {analytics.name}</h1>
           <div className="text-secondary">{analytics.username}</div>

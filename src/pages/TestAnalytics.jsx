@@ -15,7 +15,7 @@ export default function TestAnalytics() {
   return (
     <div className="animate-fade-in">
       <div style={{ marginBottom: '24px', display: 'flex', alignItems: 'center', gap: '16px' }}>
-        <Link to="/admin" className="secondary button-link" style={{ padding: '8px' }}><ArrowLeft size={18} /></Link>
+        <Link to="/admin" className="secondary button-link" style={{ padding: '8px 12px', display: 'inline-flex', alignItems: 'center', gap: '6px' }}><ArrowLeft size={18} /> Back</Link>
         <h1 style={{ margin: 0 }}>Analytics: {analytics.title}</h1>
       </div>
 

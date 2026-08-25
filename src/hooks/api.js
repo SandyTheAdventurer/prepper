@@ -224,6 +224,6 @@ export function useReorderQuestions(testId) {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (question_ids) => api.post(`/tests/${testId}/questions/reorder/`, { question_ids }),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['questions', testId] }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['test-questions', testId] }),
   });
 }

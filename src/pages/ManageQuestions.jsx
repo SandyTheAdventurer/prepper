@@ -1,6 +1,7 @@
 import { useState, useRef, useCallback } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { Edit, Trash, Save, X, Plus, Upload, Download, GripVertical, ImagePlus } from 'lucide-react';
+import DOMPurify from 'dompurify';
 import { useToast } from '../components/Toast';
 import { useTestQuestions, useCategories, useAddQuestion, useEditQuestion, useDeleteQuestion, useCreateCategory, useImportQuestions, downloadQuestionTemplate, useReorderQuestions } from '../hooks/api';
 import api from '../lib/api';
@@ -76,7 +77,7 @@ function SortableQuestionItem({ q, categories, startEdit, handleDelete }) {
           <button className="danger" onClick={() => handleDelete(q.id)} style={{ padding: '6px' }} title="Delete"><Trash size={16} /></button>
         </div>
       </div>
-      <div style={{ marginBottom: '12px', fontWeight: 600, fontSize: '1.1rem' }} dangerouslySetInnerHTML={{ __html: q.q_number + ". " + q.q_text }} />
+      <div style={{ marginBottom: '12px', fontWeight: 600, fontSize: '1.1rem' }} dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(q.q_number + ". " + q.q_text) }} />
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', fontSize: '0.9rem', color: 'var(--text-muted)' }}>
         <div style={q.correct_option === 1 ? { color: '#10b981', fontWeight: 600 } : {}}>A) {q.op1}</div>
         <div style={q.correct_option === 2 ? { color: '#10b981', fontWeight: 600 } : {}}>B) {q.op2}</div>

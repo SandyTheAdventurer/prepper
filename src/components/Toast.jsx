@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useCallback, useRef, useEffect } from 'react';
+import { createContext, useContext, useState, useCallback, useMemo, useRef, useEffect } from 'react';
 import { CheckCircle, XCircle, AlertTriangle, Info, X } from 'lucide-react';
 
 const ToastContext = createContext(null);
@@ -16,12 +16,12 @@ export function ToastProvider({ children }) {
     }, duration);
   }, []);
 
-  const toast = useCallback({
+  const toast = useMemo(() => ({
     success: (msg) => addToast(msg, 'success'),
     error: (msg) => addToast(msg, 'error'),
     warning: (msg) => addToast(msg, 'warning'),
     info: (msg) => addToast(msg, 'info'),
-  }, [addToast]);
+  }), [addToast]);
 
   // Make toast callable directly: toast.success(), toast.error(), etc.
   // But also provide a confirm() that returns a promise

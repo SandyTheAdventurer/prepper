@@ -1,8 +1,9 @@
 import { createContext, useContext, useState, useEffect, useSyncExternalStore } from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate, Link, useNavigate, Outlet } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate, Link, useNavigate, Outlet, useLocation } from 'react-router-dom';
 import { LogOut, BookOpen, WifiOff } from 'lucide-react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import api, { onBackendStatusChange, isBackendOffline } from './lib/api';
+import ErrorBoundary from './components/ErrorBoundary';
 import './index.css';
 
 // Hook to subscribe to backend offline status
@@ -204,55 +205,86 @@ import StudentAnalytics from './pages/StudentAnalytics';
 
 import { ToastProvider } from './components/Toast';
 
+const TITLES = {
+  '/login': 'Login',
+  '/dashboard': 'Dashboard',
+  '/admin': 'Admin Panel',
+  '/test': 'Test',
+};
+
+function usePageTitle() {
+  const { pathname } = useLocation();
+  useEffect(() => {
+    if (pathname.startsWith('/test/') && !pathname.includes('/admin')) {
+      document.title = 'Prepper — Test Environment';
+    } else if (pathname.startsWith('/result/')) {
+      document.title = 'Prepper — Test Result';
+    } else if (pathname.startsWith('/admin/test/') && pathname.includes('/questions')) {
+      document.title = 'Prepper — Manage Questions';
+    } else if (pathname.startsWith('/admin/test/') && pathname.includes('/analytics')) {
+      document.title = 'Prepper — Test Analytics';
+    } else if (pathname.startsWith('/admin/student/')) {
+      document.title = 'Prepper — Student Analytics';
+    } else {
+      const title = Object.entries(TITLES).find(([path]) => pathname.startsWith(path));
+      document.title = title ? `Prepper — ${title[1]}` : 'Prepper';
+    }
+  }, [pathname]);
+}
+
 function App() {
+  usePageTitle();
+
   return (
     <QueryClientProvider client={queryClient}>
       <BackendOfflineScreen>
         <ToastProvider>
           <AuthProvider>
             <Router>
-              <Routes>
-                <Route element={<Layout />}>
-                  <Route path="/login" element={<Login />} />
-                  <Route path="/dashboard" element={
+              <ErrorBoundary>
+                <Routes>
+                  <Route element={<Layout />}>
+                    <Route path="/login" element={<Login />} />
+                    <Route path="/dashboard" element={
+                      <ProtectedRoute>
+                        <Dashboard />
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/result/:testId" element={
+                      <ProtectedRoute>
+                        <TestResult />
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/admin" element={
+                      <ProtectedRoute requireAdmin={true}>
+                        <AdminPanel />
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/admin/test/:testId/questions" element={
+                      <ProtectedRoute requireAdmin={true}>
+                        <ManageQuestions />
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/admin/test/:testId/analytics" element={
+                      <ProtectedRoute requireAdmin={true}>
+                        <TestAnalytics />
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/admin/student/:username/analytics" element={
+                      <ProtectedRoute requireAdmin={true}>
+                        <StudentAnalytics />
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/" element={<Navigate to="/dashboard" />} />
+                  </Route>
+                  {/* TestEnvironment does not use Layout */}
+                  <Route path="/test/:testId" element={
                     <ProtectedRoute>
-                      <Dashboard />
+                      <TestEnvironment />
                     </ProtectedRoute>
                   } />
-                  <Route path="/result/:testId" element={
-                    <ProtectedRoute>
-                      <TestResult />
-                    </ProtectedRoute>
-                  } />
-                  <Route path="/admin" element={
-                    <ProtectedRoute requireAdmin={true}>
-                      <AdminPanel />
-                    </ProtectedRoute>
-                  } />
-                  <Route path="/admin/test/:testId/questions" element={
-                    <ProtectedRoute requireAdmin={true}>
-                      <ManageQuestions />
-                    </ProtectedRoute>
-                  } />
-                  <Route path="/admin/test/:testId/analytics" element={
-                    <ProtectedRoute requireAdmin={true}>
-                      <TestAnalytics />
-                    </ProtectedRoute>
-                  } />
-                  <Route path="/admin/student/:username/analytics" element={
-                    <ProtectedRoute requireAdmin={true}>
-                      <StudentAnalytics />
-                    </ProtectedRoute>
-                  } />
-                  <Route path="/" element={<Navigate to="/dashboard" />} />
-                </Route>
-                {/* TestEnvironment does not use Layout */}
-                <Route path="/test/:testId" element={
-                  <ProtectedRoute>
-                    <TestEnvironment />
-                  </ProtectedRoute>
-                } />
-              </Routes>
+                </Routes>
+              </ErrorBoundary>
             </Router>
           </AuthProvider>
         </ToastProvider>

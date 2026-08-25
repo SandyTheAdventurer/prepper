@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Clock, CheckCircle, ArrowRight } from 'lucide-react';
+import { Clock, CheckCircle, ArrowRight, Loader2 } from 'lucide-react';
+import DOMPurify from 'dompurify';
 import { useToast } from '../components/Toast';
 import api from '../lib/api';
 
@@ -86,6 +87,16 @@ export default function TestEnvironment() {
     };
     startTest();
   }, [testId, navigate, toast]);
+
+  // Warn before leaving test
+  useEffect(() => {
+    const handler = (e) => {
+      e.preventDefault();
+      e.returnValue = '';
+    };
+    window.addEventListener('beforeunload', handler);
+    return () => window.removeEventListener('beforeunload', handler);
+  }, []);
 
   // Timer: runs once after loading, no timeLeft in deps
   useEffect(() => {
@@ -188,11 +199,11 @@ export default function TestEnvironment() {
           </div>
           {currentSection === "APTITUDE" ? (
             <button className="primary" onClick={handleSubmitTest} disabled={submitting} style={{ background: 'var(--primary)', borderColor: 'var(--primary)' }}>
-              Next Section <ArrowRight size={18} style={{ marginLeft: '4px' }} />
+              {submitting ? <><Loader2 size={18} className="spin" /> Submitting...</> : <><span>Next Section</span> <ArrowRight size={18} style={{ marginLeft: '4px' }} /></>}
             </button>
           ) : (
             <button className="primary" onClick={handleSubmitTest} disabled={submitting} style={{ background: '#10b981', borderColor: '#10b981' }}>
-              <CheckCircle size={18} /> Finish Test
+              {submitting ? <><Loader2 size={18} className="spin" /> Submitting...</> : <><CheckCircle size={18} /> Finish Test</>}
             </button>
           )}
         </div>
@@ -269,7 +280,7 @@ export default function TestEnvironment() {
             
             <div 
               style={{ fontSize: '1.5rem', marginBottom: '40px', lineHeight: '1.6' }}
-              dangerouslySetInnerHTML={{ __html: currentQuestion.q_text }}
+              dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(currentQuestion.q_text) }}
             />
             
             <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
@@ -319,8 +330,9 @@ export default function TestEnvironment() {
               <button 
                 className="primary" 
                 onClick={handleSubmitTest}
+                disabled={submitting}
               >
-                {currentSection === "APTITUDE" ? 'Next Section' : 'Finish Test'}
+                {submitting ? <><Loader2 size={18} className="spin" /> Submitting...</> : (currentSection === "APTITUDE" ? 'Next Section' : 'Finish Test')}
               </button>
             ) : (
               <button 
