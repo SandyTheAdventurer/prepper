@@ -232,8 +232,12 @@ function usePageTitle() {
   }, [pathname]);
 }
 
-function App() {
+function PageTitle() {
   usePageTitle();
+  return null;
+}
+
+function App() {
 
   return (
     <QueryClientProvider client={queryClient}>
@@ -241,6 +245,7 @@ function App() {
         <ToastProvider>
           <AuthProvider>
             <Router>
+              <PageTitle />
               <ErrorBoundary>
                 <Routes>
                   <Route element={<Layout />}>
